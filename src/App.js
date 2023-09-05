@@ -5,14 +5,29 @@ import Rank from "./components/rank/Rank";
 import FaceRecognition from "./components/facerecognition/FaceRecognition";
 import ParticlesBg from "particles-bg";
 import "./App.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SignIn from "./components/signin/SignIn";
+import Register from "./components/register/Register";
 
 function App() {
   const [inputString, setInputString] = useState("");
   const [imageURL, setImageURL] = useState("");
   const [box, setBox] = useState({});
   const [route, setRoute] = useState("signin");
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  const [user, setUser] = useState({
+    id: "",
+    name: "",
+    email: "",
+    entries: 0,
+    joined: "",
+  });
+
+  useEffect(() => {
+    fetch("http://localhost:3000/")
+      .then((response) => response.json())
+      .then((data) => console.log(data));
+  }, []);
 
   const onInputChange = (event) => {
     console.log(event.target.value);
@@ -71,7 +86,7 @@ function App() {
     setBox(box);
   };
 
-  const onButtonSubmit = () => {
+  const onPictureSubmit = () => {
     setImageURL(inputString);
 
     fetch(
@@ -80,34 +95,58 @@ function App() {
     )
       .then((response) => response.json())
       .then((result) => {
-        console.log(result);
-        console.log(result.outputs[0].data.regions[0].region_info.bounding_box);
+        if (result) {
+          fetch("http://localhost:3000/image", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              id: user.id,
+            }),
+          });
+        }
         displayFaceBox(calculateFaceLocation(result));
+      })
+      // .then((response) => response.json())
+      .then((count) => {
+        setUser(Object.assign(user, { entries: count }));
       })
       .catch((error) => console.log("error", error));
   };
 
   const onRouteChange = (route) => {
+    if (route === "signout") {
+      setIsSignedIn(false);
+    } else if (route === "home") {
+      setIsSignedIn(true);
+    }
     setRoute(route);
+  };
+
+  const loadUser = (user) => {
+    setUser(user);
   };
 
   return (
     <div className="App">
       <ParticlesBg type="circle" bg={true} />
-      <Navigation onRouteChange={onRouteChange} />
-      {route === "signin" ? (
-        <SignIn onRouteChange={onRouteChange} />
-      ) : (
+      <Navigation isSignedIn={isSignedIn} onRouteChange={onRouteChange} />
+      {route === "home" ? (
         <div>
           <Logo />
-          <Rank />
+          <Rank user={user} />
           <ImageLinkForm
             onInputChange={onInputChange}
-            onButtonSubmit={onButtonSubmit}
+            onPictureSubmit={onPictureSubmit}
             inputString={inputString}
           />
           <FaceRecognition imageURL={imageURL} box={box} />
         </div>
+      ) : route === "signin" ? (
+        <SignIn onRouteChange={onRouteChange} loadUser={loadUser} />
+      ) : (
+        <Register onRouteChange={onRouteChange} loadUser={loadUser} />
       )}
     </div>
   );

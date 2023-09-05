@@ -1,32 +1,38 @@
 import React, { useState } from "react";
 
-const SignIn = ({ onRouteChange, loadUser }) => {
-  const [signInEmail, setSignInEmail] = useState("");
-  const [signInPassword, setSignInPassword] = useState("");
+const Register = ({ onRouteChange, loadUser }) => {
+  const [regName, setRegName] = useState("");
+  const [regEmail, setRegEmail] = useState("");
+  const [regPassword, setRegPassword] = useState("");
 
-  const onEmailChange = (event) => {
-    setSignInEmail(event.target.value);
+  const onRegNameChange = (event) => {
+    setRegName(event.target.value);
   };
-  const onPasswordChange = (event) => {
-    setSignInPassword(event.target.value);
+  const onRegEmailChange = (event) => {
+    setRegEmail(event.target.value);
+  };
+  const onRegPasswordChange = (event) => {
+    setRegPassword(event.target.value);
   };
 
-  const onSubmitSignIn = () => {
-    fetch("http://localhost:3000/signin", {
+  const onSubmitRegister = () => {
+    fetch("http://localhost:3000/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        email: signInEmail,
-        password: signInPassword,
+        name: regName,
+        email: regEmail,
+        password: regPassword,
       }),
     })
       .then((response) => response.json())
       .then((user) => {
-        if (user.id) {
+        if (user) {
           loadUser(user);
           onRouteChange("home");
+          console.log(user);
         }
       });
   };
@@ -36,7 +42,19 @@ const SignIn = ({ onRouteChange, loadUser }) => {
       <main className="pa4 black-80">
         <div className="measure">
           <fieldset id="sign_up" className="ba b--transparent ph0 mh0">
-            <legend className="f1 fw6 ph0 mh0">Sign In</legend>
+            <legend className="f1 fw6 ph0 mh0">Register</legend>
+            <div className="mt3">
+              <label className="db fw6 lh-copy f6" htmlFor="name">
+                Name
+              </label>
+              <input
+                className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100"
+                type="text"
+                name="name"
+                id="name"
+                onChange={onRegNameChange}
+              />
+            </div>
             <div className="mt3">
               <label className="db fw6 lh-copy f6" htmlFor="email-address">
                 Email
@@ -46,7 +64,7 @@ const SignIn = ({ onRouteChange, loadUser }) => {
                 type="email"
                 name="email-address"
                 id="email-address"
-                onChange={onEmailChange}
+                onChange={onRegEmailChange}
               />
             </div>
             <div className="mv3">
@@ -58,7 +76,7 @@ const SignIn = ({ onRouteChange, loadUser }) => {
                 type="password"
                 name="password"
                 id="password"
-                onChange={onPasswordChange}
+                onChange={onRegPasswordChange}
               />
             </div>
           </fieldset>
@@ -66,17 +84,9 @@ const SignIn = ({ onRouteChange, loadUser }) => {
             <input
               className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib"
               type="submit"
-              value="Sign in"
-              onClick={onSubmitSignIn}
+              value="Register"
+              onClick={onSubmitRegister}
             />
-          </div>
-          <div className="lh-copy mt3">
-            <p
-              className="f6 link dim black db pointer"
-              onClick={() => onRouteChange("register")}
-            >
-              Register
-            </p>
           </div>
         </div>
       </main>
@@ -84,4 +94,4 @@ const SignIn = ({ onRouteChange, loadUser }) => {
   );
 };
 
-export default SignIn;
+export default Register;
