@@ -23,14 +23,19 @@ function App() {
     joined: "",
   });
 
+  const initialState = {
+    id: "",
+    name: "",
+    email: "",
+    entries: 0,
+    joined: "",
+  };
+
   useEffect(() => {
-    fetch("http://localhost:3000/")
-      .then((response) => response.json())
-      .then((data) => console.log(data));
+    fetch("http://localhost:3000/").then((response) => response.json());
   }, []);
 
   const onInputChange = (event) => {
-    console.log(event.target.value);
     setInputString(event.target.value);
   };
 
@@ -86,37 +91,45 @@ function App() {
     setBox(box);
   };
 
-  const onPictureSubmit = () => {
-    setImageURL(inputString);
-
+  const clarifaiRequest = () => {
     fetch(
       "https://api.clarifai.com/v2/models/face-detection/outputs",
       setupClarifai(inputString)
     )
+      .then(async (response) => {
+        const data = await response.json();
+        displayFaceBox(calculateFaceLocation(data));
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const countUpdate = () => {
+    fetch("http://localhost:3000/image", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: user.id,
+      }),
+    })
       .then((response) => response.json())
-      .then((result) => {
-        if (result) {
-          fetch("http://localhost:3000/image", {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              id: user.id,
-            }),
-          });
-        }
-        displayFaceBox(calculateFaceLocation(result));
-      })
-      // .then((response) => response.json())
       .then((count) => {
-        setUser(Object.assign(user, { entries: count }));
+        setUser(Object.assign(user, { entries: count.entries }));
       })
-      .catch((error) => console.log("error", error));
+      .catch((err) => console.log(err));
+  };
+
+  const onPictureSubmit = () => {
+    setImageURL(inputString);
+    clarifaiRequest();
+    countUpdate();
   };
 
   const onRouteChange = (route) => {
     if (route === "signout") {
+      setUser(initialState);
+      setInputString("");
+      setBox({});
+      setImageURL("");
       setIsSignedIn(false);
     } else if (route === "home") {
       setIsSignedIn(true);

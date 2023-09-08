@@ -47,6 +47,7 @@ const SignIn = ({ onRouteChange, loadUser }) => {
                 name="email-address"
                 id="email-address"
                 onChange={onEmailChange}
+                autoComplete="off"
               />
             </div>
             <div className="mv3">

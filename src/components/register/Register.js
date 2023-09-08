@@ -32,7 +32,6 @@ const Register = ({ onRouteChange, loadUser }) => {
         if (user) {
           loadUser(user);
           onRouteChange("home");
-          console.log(user);
         }
       });
   };
@@ -53,6 +52,7 @@ const Register = ({ onRouteChange, loadUser }) => {
                 name="name"
                 id="name"
                 onChange={onRegNameChange}
+                autoComplete="off"
               />
             </div>
             <div className="mt3">
@@ -65,6 +65,7 @@ const Register = ({ onRouteChange, loadUser }) => {
                 name="email-address"
                 id="email-address"
                 onChange={onRegEmailChange}
+                autoComplete="off"
               />
             </div>
             <div className="mv3">
